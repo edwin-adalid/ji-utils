@@ -31,10 +31,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 package com.jirvan.util;
 
 import com.jirvan.lang.MessageException;
-import org.apache.log4j.EnhancedPatternLayout;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.WriterAppender;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.WriterAppender;
+import org.apache.logging.log4j.core.config.AppenderRef;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.LoggerConfig;
+import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.Logger;
 
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -100,9 +105,23 @@ public class JobPool {
             this.status = Status.inProgress;
             assertNotNull(logger, "logger must be provided");
             logWriter = new StringWriter();
-            WriterAppender writerAppender = new WriterAppender(new EnhancedPatternLayout("%m\n"), logWriter);
-            if (level != null) writerAppender.setThreshold(level);
-            logger.addAppender(writerAppender);
+            LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+            Configuration config = ctx.getConfiguration();
+
+            WriterAppender writerAppender = WriterAppender.newBuilder().setName("writeLogger").setTarget(logWriter)
+                    .setLayout(PatternLayout.newBuilder().withPattern("%m\n").build()).build();
+            writerAppender.start();
+            config.addAppender(writerAppender);
+
+            AppenderRef ref = AppenderRef.createAppenderRef("writeLogger", level, null);
+            AppenderRef[] refs = new AppenderRef[] { ref };
+
+            LoggerConfig loggerConfig = LoggerConfig.createLogger(false, level, "jobLogger" + this.jobId, null, refs, null, config,
+                    null);
+
+            loggerConfig.addAppender(writerAppender, level, null);
+            config.addLogger("jobLogger" + this.jobId, loggerConfig);
+            ctx.updateLoggers();
         }
 
         public static enum Status {

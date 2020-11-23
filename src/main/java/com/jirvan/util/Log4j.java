@@ -30,20 +30,25 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 package com.jirvan.util;
 
-import org.apache.log4j.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 
 public class Log4j {
 
     public static Logger newNoOpLogger() {
-        Logger logger = Logger.getLogger("No-op logger");
-        logger.setLevel(Level.OFF);
+        Logger logger = LogManager.getLogger("No-op logger");
         return logger;
     }
 
     public static Logger newSimpleTimestampLogger() {
-        Logger logger = Logger.getLogger("SimpleTimestampLogger");
-        logger.setAdditivity(false);
-        logger.addAppender(new ConsoleAppender(new EnhancedPatternLayout("%d{HH:mm:ss}   %m%n")));
+        Logger logger = LogManager.getLogger("SimpleTimestampLogger");
+        LoggerContext ctx = (LoggerContext) LogManager.getContext(false);
+        Configuration config = ctx.getConfiguration();
+        config.addAppender(ConsoleAppender.newBuilder().setLayout(PatternLayout.newBuilder().withPattern("%d{HH:mm:ss}   %m%n").build()).build());
         return logger;
     }
 

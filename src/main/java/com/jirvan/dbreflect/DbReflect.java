@@ -35,7 +35,9 @@ import com.jirvan.util.Jdbc;
 import com.jirvan.util.Json;
 import com.jirvan.util.Strings;
 import com.jirvan.util.Utl;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +59,8 @@ public class DbReflect {
     private static final Logger log = LoggerFactory.getLogger(DbReflect.class);
 
     public static void main(String[] args) {
-        BasicConfigurator.configure();
+        Configurator.initialize(new DefaultConfiguration());
+        Configurator.setRootLevel(Level.INFO);
         List<Table> tables = getTables(Jdbc.getPostgresDataSource("cmsbdev/x@localhost/cmsbdev"));
 //        List<Table> tables = getTables(Jdbc.getPostgresDataSource("jitimedev/x@localhost/jitimedev"));
         System.out.printf("\n%s\n", Json.toJsonString(tables));

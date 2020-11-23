@@ -35,7 +35,9 @@ import com.jirvan.dbreflect.DbReflect;
 import com.jirvan.dbreflect.Table;
 import com.jirvan.util.Io;
 import com.jirvan.util.Jdbc;
-import org.apache.log4j.BasicConfigurator;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.DefaultConfiguration;
 
 import javax.sql.DataSource;
 import java.io.File;
@@ -66,7 +68,8 @@ public class JdlGenerator {
         } else {
             throw new RuntimeException("Usage: JdlGenerator [-r] connectString");
         }
-        BasicConfigurator.configure();
+        Configurator.initialize(new DefaultConfiguration());
+        Configurator.setRootLevel(Level.INFO);
         generateJdlFile(Jdbc.getDataSource(connectString),
                         outputFile,
                         replaceExistingFile);
